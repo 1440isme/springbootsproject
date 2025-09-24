@@ -4,7 +4,7 @@
       layout:decorate="~{admin/layout-admin}">
 <head>
     <meta charset="UTF-8">
-    <title>Xóa danh mục (AJAX)</title>
+    <title>Xóa sản phẩm (AJAX)</title>
     <script th:inline="javascript">
         /*<![CDATA[*/
         var contextPath = /*[[@{/}]]*/ '/';
@@ -14,17 +14,17 @@
 </head>
 <body>
 <div layout:fragment="content" class="container py-3">
-    <!-- Modal Delete Category -->
-    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryLabel" aria-hidden="true">
+    <!-- Modal Delete Product -->
+    <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCategoryLabel">Xác nhận xóa</h5>
+                    <h5 class="modal-title" id="deleteProductLabel">Xác nhận xóa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa category này?</p>
-                    <input type="hidden" id="delete_categoryid">
+                    <p>Bạn có chắc chắn muốn xóa sản phẩm này?</p>
+                    <input type="hidden" id="delete_productid">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" id="btnConfirmDelete">Xóa</button>
@@ -40,38 +40,37 @@
             return urlParams.get(name);
         }
         function goBackToList() {
-            window.location.href = contextPath + 'admin/categories/ajax/list';
+            window.location.href = contextPath + 'admin/products/ajax/list';
         }
-
         $(document).ready(function () {
             var id = getQueryParam('id');
             if (!id) {
                 alert('Thiếu tham số id');
                 return goBackToList();
             }
-            $('#delete_categoryid').val(id);
+            $('#delete_productid').val(id);
             try {
-                var delEl = document.getElementById('deleteCategoryModal');
+                var delEl = document.getElementById('deleteProductModal');
                 var modal = bootstrap.Modal.getInstance(delEl) || new bootstrap.Modal(delEl);
                 modal.show();
             } catch (e) {
-                $('#deleteCategoryModal').modal('show');
+                $('#deleteProductModal').modal('show');
             }
 
             $('#btnConfirmDelete').on('click', function () {
-                var idDel = $('#delete_categoryid').val();
+                var idDel = $('#delete_productid').val();
                 $.ajax({
-                    url: contextPath + 'api/category/deleteCategory?categoryId=' + encodeURIComponent(idDel),
+                    url: contextPath + 'api/products/deleteProduct?productId=' + encodeURIComponent(idDel),
                     type: 'DELETE',
                     dataType: 'json',
                     success: function (res) {
                         if (res && (res.status === true || res.status === 'true')) {
                             try {
-                                var delEl2 = document.getElementById('deleteCategoryModal');
+                                var delEl2 = document.getElementById('deleteProductModal');
                                 var modal2 = bootstrap.Modal.getInstance(delEl2) || new bootstrap.Modal(delEl2);
                                 modal2.hide();
                             } catch (e) {
-                                $('#deleteCategoryModal').modal('hide');
+                                $('#deleteProductModal').modal('hide');
                             }
                             goBackToList();
                         } else {
@@ -84,7 +83,7 @@
                 });
             });
 
-            $('#deleteCategoryModal').on('hidden.bs.modal', function () {
+            $('#deleteProductModal').on('hidden.bs.modal', function () {
                 goBackToList();
             });
         });

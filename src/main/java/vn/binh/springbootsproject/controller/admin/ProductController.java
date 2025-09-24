@@ -204,4 +204,25 @@ public class ProductController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // AJAX view pages for Products
+    @GetMapping("ajax/list")
+    public String listAjax() {
+        return "admin/products/list-ajax";
+    }
+
+    @GetMapping("ajax/add")
+    public String addAjax() {
+        return "admin/products/add-ajax";
+    }
+
+    @GetMapping("ajax/update")
+    public String updateAjax() {
+        return "admin/products/update-ajax";
+    }
+
+    @GetMapping("ajax/delete")
+    public String deleteAjax() {
+        return "admin/products/delete-ajax";
+    }
 }

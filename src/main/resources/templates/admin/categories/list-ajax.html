@@ -86,6 +86,7 @@
     $(document).ready(function () {
         loadCategories();
 
+        // Submit add form via AJAX
         $("form#addCategory").submit(function (e) {
             e.preventDefault();
             var formData = new FormData(this);
@@ -119,6 +120,22 @@
             });
         });
 
+        // Delegated navigation for Edit/Delete buttons
+        $('#categories-tbody').on('click', 'a.btn-edit', function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            if (id != null) {
+                window.location.href = contextPath + 'admin/categories/ajax/update?id=' + encodeURIComponent(id);
+            }
+        });
+        $('#categories-tbody').on('click', 'a.btn-delete', function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            if (id != null) {
+                window.location.href = contextPath + 'admin/categories/ajax/delete?id=' + encodeURIComponent(id);
+            }
+        });
+
     });
 
     function loadCategories() {
@@ -136,8 +153,8 @@
                     : '<span class="text-muted">No icon</span>') + '</td>');
                 rows.push('<td>' + (c.categoryName ?? '') + '</td>');
                 rows.push('<td>' +
-                    '<a href="#" data-id="' + c.categoryId + '" class="btn btn-outline-warning me-1"><i class="fa fa-edit"></i></a>' +
-                    '<a href="#" data-id="' + c.categoryId + '" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>' +
+                    '<a href="#" data-id="' + c.categoryId + '" class="btn btn-outline-warning me-1 btn-edit" title="Sửa"><i class="fa fa-edit"></i></a>' +
+                    '<a href="#" data-id="' + c.categoryId + '" class="btn btn-outline-danger btn-delete" title="Xóa"><i class="fa fa-trash"></i></a>' +
                     '</td>');
                 rows.push('</tr>');
             });
