@@ -3,25 +3,26 @@ package vn.binh.springbootsproject.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.domain.Sort;
-import vn.binh.springbootsproject.entity.CategoryEntity;
+import vn.binh.springbootsproject.entity.Category;
+
 
 public interface ICategoryService {
-
-    void deleteAll();
-    void delete(CategoryEntity entity);
+    void delete(Category entity);
     void deleteById(Long id);
     long count();
-    Optional<CategoryEntity> findById(Long id);
-    List<CategoryEntity> findAllById(Iterable<Long> ids);
-    List<CategoryEntity> findAll(Sort sort);
-    Page<CategoryEntity> findAll(Pageable pageable);
-    List<CategoryEntity> findAll();
-    <S extends CategoryEntity> S save(S entity);
-    List<CategoryEntity> findByNameContaining(String name);
-    Page<CategoryEntity> findByNameContaining(String name, Pageable pageable);
-    Optional<CategoryEntity> findByName(String name);
+    <S extends Category> Optional<S> findOne(Example<S> example);
+    Optional<Category> findById(Long id);
+    List<Category> findAllById(Iterable<Long> ids);
+    List<Category> findAll(Sort sort);
+    Page<Category> findAll(Pageable pageable);
+    List<Category> findAll();
+    Optional<Category> findByCategoryName(String name);
+    <S extends Category> S save(S entity);
+    Page<Category> findByCategoryNameContaining(String name, Pageable pageable);
+    List<Category> findByCategoryNameContaining(String name);
 }

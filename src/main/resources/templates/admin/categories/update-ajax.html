@@ -1,0 +1,66 @@
+<!-- Modal Edit Category -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editCategory" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCategoryLabel">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit_categoryid" name="categoryId">
+                    <div class="mb-3">
+                        <label for="edit_categoryname" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="edit_categoryname" name="categoryName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_icon" class="form-label">Icon</label>
+                        <input type="file" class="form-control" id="edit_icon" name="icon">
+                        <small class="text-muted">Để trống nếu không đổi icon</small>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '.editcate', function () {
+        var id = $(this).data('id');
+        $.ajax({
+            url: (window.contextPath || '/') + 'api/category/getCategory',
+            type: 'POST',
+            dataType: 'json',
+            data: { id: id },
+            success: function (resp) {
+                var c = resp && resp.data ? resp.data : resp;
+                if (!c) { return; }
+                $('#edit_categoryid').val(c.categoryId);
+                $('#edit_categoryname').val(c.categoryName);
+                $('#edit_icon').val('');
+                $('#editCategoryModal').modal('show');
+            }
+        });
+    });
+
+    $("form#editCategory").submit(function (e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            url: (window.contextPath || '/') + 'api/category/updateCategory',
+            type: 'PUT',
+            dataType: "json",
+            data: formData,
+            success: function () {
+                $('#editCategoryModal').modal('hide');
+                loadCategories();
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+</script>

@@ -7,15 +7,9 @@ import java.nio.file.Path;
 
 public interface IStorageService {
     void init();
-
-    void delete(String storedFileName) throws Exception;
-
+    void delete(String storeFilename) throws Exception;
     Path load(String filename);
-
     Resource loadAsResource(String filename);
-
-    void store(MultipartFile file, String filename);
-
-    String getStoredFileName(MultipartFile file, String id);
-
+    void store(MultipartFile file, String storeFilename);
+    String getStorageFilename(MultipartFile file, String id);
 }

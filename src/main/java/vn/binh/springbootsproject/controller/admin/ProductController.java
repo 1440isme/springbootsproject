@@ -16,8 +16,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import vn.binh.springbootsproject.entity.CategoryEntity;
-import vn.binh.springbootsproject.entity.ProductEntity;
+
+import vn.binh.springbootsproject.entity.Category;
+import vn.binh.springbootsproject.entity.Product;
 import vn.binh.springbootsproject.model.CategoryModel;
 import vn.binh.springbootsproject.model.ProductModel;
 import vn.binh.springbootsproject.service.ICategoryService;
@@ -63,15 +64,15 @@ public class ProductController {
         if (result.hasErrors()) {
             return new ModelAndView("admin/products/addOrEdit");
         }
-        ProductEntity entity = new ProductEntity();
+        Product entity = new Product();
         BeanUtils.copyProperties(proModel, entity);
-        CategoryEntity cateEntity = new CategoryEntity();
+        Category cateEntity = new Category();
         cateEntity.setCategoryId(proModel.getCategoryId());
         entity.setCategory(cateEntity);
         if (!proModel.getImageFile().isEmpty()) {
             UUID uuid = UUID.randomUUID();
             String uuString = uuid.toString();
-            entity.setImages(storageService.getStoredFileName(proModel.getImageFile(), uuString));
+            entity.setImages(storageService.getStorageFilename(proModel.getImageFile(), uuString));
             storageService.store(proModel.getImageFile(), entity.getImages());
         }
         productService.save(entity);
@@ -87,17 +88,17 @@ public class ProductController {
 
     @RequestMapping("")
     public String list(ModelMap model) {
-        List<ProductEntity> list = productService.findAll();
+        List<Product> list = productService.findAll();
         model.addAttribute("products", list);
         return "admin/products/list";
     }
 
     @GetMapping("edit/{productId}")
     public ModelAndView edit(ModelMap model, @PathVariable("productId") Long productId) {
-        Optional<ProductEntity> optProduct = productService.findById(productId);
+        Optional<Product> optProduct = productService.findById(productId);
         ProductModel proModel = new ProductModel();
         if (optProduct.isPresent()) {
-            ProductEntity entity = optProduct.get();
+            Product entity = optProduct.get();
             BeanUtils.copyProperties(optProduct.get(), proModel);
             proModel.setCategoryId(entity.getCategory().getCategoryId());
             proModel.setIsEdit(true);
@@ -121,7 +122,7 @@ public class ProductController {
 
     @GetMapping("delete/{productId}")
     public ModelAndView delete(ModelMap model, @PathVariable("productId") Long productId) {
-        Optional<ProductEntity> opt = productService.findById(productId);
+        Optional<Product> opt = productService.findById(productId);
         if (opt.isPresent()) {
             if (!StringUtils.isEmpty(opt.get().getImages())) {
                 try {
@@ -139,7 +140,7 @@ public class ProductController {
 
     @GetMapping("search")
     public String search(ModelMap model, @RequestParam(name = "name", required = false) String name) {
-        List<ProductEntity> list;
+        List<Product> list;
         if (StringUtils.hasText(name)) {
             list = productService.findByNameContaining(name);
         } else {
@@ -158,7 +159,7 @@ public class ProductController {
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(3);
         Pageable pageable = PageRequest.of(currentPage - 1, pageSize, Sort.by("name"));
-        Page<ProductEntity> resultPage = null;
+        Page<Product> resultPage = null;
         if (StringUtils.hasText(name)) {
             resultPage = productService.findByNameContaining(name, pageable);
         } else {
@@ -181,4 +182,26 @@ public class ProductController {
         return "admin/products/searchpaginated";
     }
 
+    @GetMapping(value = "ajax", produces = "application/json")
+    @ResponseBody
+    public Page<Product> searchAjax(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size) {
+
+        int safePage = Math.max(1, page);
+        Pageable pageable = PageRequest.of(safePage - 1, size, Sort.by("name"));
+        if (StringUtils.hasText(name)) {
+            return productService.findByNameContaining(name, pageable);
+        }
+        return productService.findAll(pageable);
+    }
+
+    @GetMapping(value = "ajax/{productId}", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Product> getOneAjax(@PathVariable("productId") Long productId) {
+        return productService.findById(productId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

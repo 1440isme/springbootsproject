@@ -6,10 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.thymeleaf.util.StringUtils;
-import vn.binh.springbootsproject.entity.ProductEntity;
+import vn.binh.springbootsproject.entity.Product;
 import vn.binh.springbootsproject.repository.ProductRepository;
 import vn.binh.springbootsproject.service.IProductService;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public void delete(ProductEntity entity) {
+    public void delete(Product entity) {
         productRepository.delete(entity);
     }
 
@@ -43,35 +44,35 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public Optional<ProductEntity> findById(Long id) {
+    public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
 
     @Override
-    public List<ProductEntity> findAllById(Iterable<Long> ids) {
+    public List<Product> findAllById(Iterable<Long> ids) {
         return productRepository.findAllById(ids);
     }
 
     @Override
-    public List<ProductEntity> findAll(Sort sort) {
+    public List<Product> findAll(Sort sort) {
         return productRepository.findAll(sort);
     }
 
     @Override
-    public Page<ProductEntity> findAll(Pageable pageable) {
+    public Page<Product> findAll(Pageable pageable) {
         return productRepository.findAll(pageable);
     }
 
     @Override
-    public List<ProductEntity> findAll() {
+    public List<Product> findAll() {
         return productRepository.findAll();
     }
 
-    public <S extends ProductEntity> S save(S entity) {
+    public <S extends Product> S save(S entity) {
         if (entity.getProductId() == null) {
             return productRepository.save(entity);
         } else {
-            Optional<ProductEntity> optImages = findById(entity.getProductId());
+            Optional<Product> optImages = findById(entity.getProductId());
             if (StringUtils.isEmpty(entity.getImages())) {
                 entity.setImages(optImages.get().getImages());
             } else
@@ -81,13 +82,23 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<ProductEntity> findByNameContaining(String name) {
-        return productRepository.findByNameContaining(name);
+    public List<Product> findByNameContaining(String name) {
+        return productRepository.findByProductNameContaining(name);
     }
 
     @Override
-    public Page<ProductEntity> findByNameContaining(String name, Pageable pageable) {
-        return productRepository.findByNameContaining(name, pageable);
+    public Page<Product> findByNameContaining(String name, Pageable pageable) {
+        return productRepository.findByProductNameContaining(name, pageable);
+    }
+
+    @Override
+    public Optional<Product> findByCreateDate(Timestamp timestamp) {
+        return productRepository.findByCreateDate(timestamp);
+    }
+
+    @Override
+    public Optional<Product> findByProductName(String productName) {
+        return productRepository.findByProductName(productName);
     }
 
 }

@@ -1,0 +1,39 @@
+<!-- Modal Delete Category -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCategoryLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa category này?</p>
+                <input type="hidden" id="delete_categoryid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Xóa</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '.deletecate', function () {
+        var id = $(this).data('id');
+        $('#delete_categoryid').val(id);
+        $('#deleteCategoryModal').modal('show');
+    });
+
+    function confirmDelete() {
+        var id = $('#delete_categoryid').val();
+        $.ajax({
+            url: (window.contextPath || '/') + 'api/category/deleteCategory?categoryId=' + encodeURIComponent(id),
+            type: 'DELETE',
+            success: function () {
+                $('#deleteCategoryModal').modal('hide');
+                loadCategories();
+            }
+        });
+    }
+</script>

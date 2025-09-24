@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,13 +20,16 @@ import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
-import vn.binh.springbootsproject.entity.CategoryEntity;
+
+import vn.binh.springbootsproject.entity.Category;
 import vn.binh.springbootsproject.model.CategoryModel;
 import vn.binh.springbootsproject.service.ICategoryService;
+import vn.binh.springbootsproject.service.IStorageService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -33,6 +39,8 @@ public class CategoryController {
 
     @Autowired
     ICategoryService categoryService;
+    @Autowired
+    IStorageService storageService;
 
     @GetMapping("add")
     public String add(ModelMap model) {
@@ -48,7 +56,7 @@ public class CategoryController {
         if (result.hasErrors()) {
             return "admin/categories/addOrEdit";
         }
-        CategoryEntity entity = new CategoryEntity();
+        Category entity = new Category();
         BeanUtils.copyProperties(cateModel, entity);
         categoryService.save(entity);
 
@@ -64,18 +72,18 @@ public class CategoryController {
 
     @RequestMapping("")
     public String list(ModelMap model) {
-        List<CategoryEntity> list = categoryService.findAll();
+        List<Category> list = categoryService.findAll();
         model.addAttribute("categories", list);
         return "admin/categories/list";
     }
 
     @GetMapping("edit/{id}")
     public ModelAndView edit(ModelMap model, @PathVariable("id") Long id) {
-        Optional<CategoryEntity> optCategory = categoryService.findById(id);
+        Optional<Category> optCategory = categoryService.findById(id);
         CategoryModel cateModel = new CategoryModel();
 
         if (optCategory.isPresent()) {
-            CategoryEntity entity = optCategory.get();
+            Category entity = optCategory.get();
             BeanUtils.copyProperties(entity, cateModel);
             cateModel.setIsEdit(true);
             model.addAttribute("category", cateModel);
@@ -95,9 +103,9 @@ public class CategoryController {
 
     @GetMapping("search")
     public String search(ModelMap model, @RequestParam(name = "name", required = false) String name) {
-        List<CategoryEntity> list;
+        List<Category> list;
         if (StringUtils.hasText(name)) {
-            list = categoryService.findByNameContaining(name);
+            list = categoryService.findByCategoryNameContaining(name);
         } else {
             list = categoryService.findAll();
         }
@@ -105,25 +113,33 @@ public class CategoryController {
         return "admin/categories/search";
     }
 
-    @RequestMapping("searchpaginate")
-    public String seach(ModelMap model,
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam("page") Optional<Integer> page,
-            @RequestParam("size") Optional<Integer> size) {
-        int currentPage = page.orElse(1);
-        int pageSize = size.orElse(3);
-        Pageable pageable = PageRequest.of(currentPage - 1, pageSize, Sort.by("categoryId"));
-        Page<CategoryEntity> resultPage;
-
-        if (StringUtils.hasText(name)) {
-            model.addAttribute("name", name);
-            resultPage = categoryService.findByNameContaining(name, pageable);
-        } else {
-            resultPage = categoryService.findAll(pageable);
-        }
-
-        model.addAttribute("categoryPage", resultPage);
-        return "admin/categories/searchpaginated";
+    // Các view phục vụ render bằng AJAX
+    @GetMapping("ajax/list")
+    public String listAjax() {
+        return "admin/categories/list-ajax";
     }
 
+    @GetMapping("/images/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        Resource file = storageService.loadAsResource(filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + file.getFilename() + "\"")
+                .body(file);
+    }
+
+    @GetMapping("ajax/add")
+    public String addAjax() {
+        return "admin/categories/add-ajax";
+    }
+
+    @GetMapping("ajax/update")
+    public String updateAjax() {
+        return "admin/categories/update-ajax";
+    }
+
+    @GetMapping("ajax/delete")
+    public String deleteAjax() {
+        return "admin/categories/delete-ajax";
+    }
 }

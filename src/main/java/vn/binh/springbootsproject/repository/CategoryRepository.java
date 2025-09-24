@@ -9,14 +9,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import vn.binh.springbootsproject.entity.CategoryEntity;
+import vn.binh.springbootsproject.entity.Category;
+
 
 @Repository
-
-public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
-
-    List<CategoryEntity> findByNameContaining(String name);
-
-    Page<CategoryEntity> findByNameContaining(String name, Pageable pageable);
-    Optional<CategoryEntity> findByName(String name);
+public interface CategoryRepository extends JpaRepository<Category, Long > {
+    //Tìm Kiếm theo nội dung tên
+    List<Category> findByCategoryNameContaining(String name);
+    //Tìm kiếm và Phân trang
+    Page<Category> findByCategoryNameContaining(String name,Pageable pageable);
+    Optional<Category> findByCategoryName(String name);
 }

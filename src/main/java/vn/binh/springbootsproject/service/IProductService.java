@@ -3,22 +3,27 @@ package vn.binh.springbootsproject.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import vn.binh.springbootsproject.entity.ProductEntity;
+import vn.binh.springbootsproject.entity.Product;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
 public interface IProductService {
     void deleteAll();
-    void delete(ProductEntity entity);
+    void delete(Product entity);
     void deleteById(Long id);
     long count();
-    Optional<ProductEntity> findById(Long id);
-    List<ProductEntity> findAllById(Iterable<Long> ids);
-    List<ProductEntity> findAll(Sort sort);
-    Page<ProductEntity> findAll(Pageable pageable);
-    List<ProductEntity> findAll();
-    <S extends ProductEntity> S save(S entity);
-    List<ProductEntity> findByNameContaining(String name);
-    Page<ProductEntity> findByNameContaining(String name, Pageable pageable);
+    Optional<Product> findById(Long id);
+    List<Product> findAllById(Iterable<Long> ids);
+    List<Product> findAll(Sort sort);
+    Page<Product> findAll(Pageable pageable);
+    List<Product> findAll();
+    <S extends Product> S save(S entity);
+    List<Product> findByNameContaining(String name);
+    Page<Product> findByNameContaining(String name, Pageable pageable);
+
+    Optional<Product> findByCreateDate(Timestamp timestamp);
+
+    Optional<Product> findByProductName(String productName);
 }
